@@ -149,6 +149,88 @@ local check_disabled = function(excluded, bufnr)
     or matches_file_patterns(api.nvim_buf_get_name(bufnr or 0), excluded.patterns)
 end
 
+local jump_to_word = function(direction)
+  if not enabled then
+    return
+  end
+  
+  local cursor_pos = get_cursor(0)
+  local cursor_line = cursor_pos[1]
+  local cursor_column = cursor_pos[2]
+  local current_line = get_line()
+  
+  -- Get current word under cursor
+  local matches = matchstrpos(current_line:sub(1, cursor_column + 1), [[\w*$]])
+  local current_word = matches[1]
+  
+  if current_word ~= "" then
+    matches = matchstrpos(current_line, [[^\w*]], cursor_column + 1)
+    current_word = current_word .. matches[1]
+  end
+  
+  if current_word == "" or #current_word < 2 then
+    return
+  end
+  
+  -- Search for the same word in the buffer
+  local buf_lines = api.nvim_buf_get_lines(0, 0, -1, false)
+  local word_positions = {}
+  
+  -- Find all occurrences of the word
+  for line_num, line_content in ipairs(buf_lines) do
+    local start_pos = 1
+    while true do
+      -- Find the word with word boundaries
+      local word_start, word_end = line_content:find(vim.pesc(current_word), start_pos)
+      if not word_start then
+        break
+      end
+      
+      -- Check word boundaries manually
+      local char_before = word_start == 1 and "" or line_content:sub(word_start - 1, word_start - 1)
+      local char_after = word_end == #line_content and "" or line_content:sub(word_end + 1, word_end + 1)
+      
+      local is_word_start = word_start == 1 or not char_before:match("[%w_]")
+      local is_word_end = word_end == #line_content or not char_after:match("[%w_]")
+      
+      if is_word_start and is_word_end then
+        table.insert(word_positions, {line_num, word_start - 1}) -- Convert to 0-based indexing
+      end
+      
+      start_pos = word_end + 1
+    end
+  end
+  
+  if #word_positions <= 1 then
+    return -- No other occurrences found
+  end
+  
+  -- Find current position in the list
+  local current_idx = nil
+  for i, pos in ipairs(word_positions) do
+    if pos[1] == cursor_line and math.abs(pos[2] - cursor_column) <= #current_word then
+      current_idx = i
+      break
+    end
+  end
+  
+  if not current_idx then
+    return
+  end
+  
+  -- Calculate next position
+  local next_idx
+  if direction == "next" then
+    next_idx = current_idx == #word_positions and 1 or current_idx + 1
+  else -- direction == "prev"
+    next_idx = current_idx == 1 and #word_positions or current_idx - 1
+  end
+  
+  -- Jump to the next/previous occurrence
+  local target_pos = word_positions[next_idx]
+  api.nvim_win_set_cursor(0, {target_pos[1], target_pos[2]})
+end
+
 local enable = function(configs)
   enabled = true
   -- initial when plugin is loaded
@@ -228,15 +310,27 @@ M.setup = function(user_opts)
       disable()
     elseif arg == "toggle" then
       toggle(opts)
+    elseif arg == "next" then
+      jump_to_word("next")
+    elseif arg == "prev" then
+      jump_to_word("prev")
     end
   end, {
     nargs = 1,
     complete = function()
-      return { "enable", "disable", "toggle" }
+      return { "enable", "disable", "toggle", "next", "prev" }
     end,
-    desc = "Enable or disable cursorword",
+    desc = "Enable/disable cursorword or jump to next/previous occurrence",
   })
   enable(opts)
+end
+
+M.jump_next = function()
+  jump_to_word("next")
+end
+
+M.jump_prev = function()
+  jump_to_word("prev")
 end
 
 return M

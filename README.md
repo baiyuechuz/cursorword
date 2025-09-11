@@ -30,15 +30,15 @@ require('cursorword').setup({
     underline = true,
   },
   keymaps = {
-    next = "<leader>nw",  -- Jump to next occurrence (default: <leader>nw)
-    prev = "<leader>pw",  -- Jump to previous occurrence (default: <leader>pw)
+    next = "nw",  -- Jump to next occurrence (default: nw)
+    prev = "pw",  -- Jump to previous occurrence (default: pw)
   },
 })
 ```
 
 ### Jumping Between Word Occurrences
 
-The plugin sets up default keymaps `<leader>nw` and `<leader>pw` for jumping between word occurrences. 
+The plugin sets up default keymaps `nw` and `pw` for jumping between word occurrences. 
 
 To disable default keymaps:
 

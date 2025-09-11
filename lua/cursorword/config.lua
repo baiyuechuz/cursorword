@@ -16,8 +16,8 @@ M.default_configs = {
     underline = true,
   },
   keymaps = {
-    next = "<leader>nw",
-    prev = "<leader>pw",
+    next = "nw",
+    prev = "pw",
   },
 }
 

@@ -29,10 +29,35 @@ require('cursorword').setup({
   highlight = {
     underline = true,
   },
+  keymaps = {
+    next = "<leader>nw",  -- Jump to next occurrence (default: <leader>nw)
+    prev = "<leader>pw",  -- Jump to previous occurrence (default: <leader>pw)
+  },
 })
 ```
 
 ### Jumping Between Word Occurrences
+
+The plugin sets up default keymaps `<leader>nw` and `<leader>pw` for jumping between word occurrences. 
+
+To disable default keymaps:
+
+```lua
+require('cursorword').setup({
+  keymaps = false,  -- Disable all default keymaps
+})
+```
+
+Or customize the keymaps:
+
+```lua
+require('cursorword').setup({
+  keymaps = {
+    next = "<leader>n",   -- Custom keymap for next occurrence  
+    prev = "<leader>p",   -- Custom keymap for previous occurrence
+  },
+})
+```
 
 You can also use the Lua API functions directly:
 
@@ -42,13 +67,6 @@ require('cursorword').jump_next()
 
 -- Jump to previous occurrence of the word under cursor
 require('cursorword').jump_prev()
-```
-
-Example key mappings:
-
-```lua
-vim.keymap.set('n', '<leader>n', function() require('cursorword').jump_next() end, { desc = 'Jump to next word occurrence' })
-vim.keymap.set('n', '<leader>p', function() require('cursorword').jump_prev() end, { desc = 'Jump to previous word occurrence' })
 ```
 
 ## License

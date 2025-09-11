@@ -19,6 +19,7 @@ local M = {}
 local default_configs = {
   max_word_length = 100,
   min_word_length = 2,
+  highlight_in_insert_mode = false,
   excluded = {
     filetypes = {},
     buftypes = {
@@ -75,6 +76,12 @@ end
 
 local highlight_same = function(configs)
   if not enabled then
+    return
+  end
+
+  -- Check if we're in insert mode and highlighting in insert mode is disabled
+  if not configs.highlight_in_insert_mode and api.nvim_get_mode().mode:sub(1, 1) == 'i' then
+    matchdelete()
     return
   end
 

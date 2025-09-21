@@ -11,6 +11,13 @@ M.default_configs = {
       "terminal",
     },
     patterns = {},
+    words = {
+      "TODO",
+      "FIXME",
+      "NOTE",
+      "HACK",
+      "XXX",
+    },
   },
   highlight = {
     underline = true,

@@ -65,6 +65,13 @@ local function highlight_same(configs, window_state)
       return
     end
 
+    -- Check if word is in excluded words list
+    for _, excluded_word in ipairs(configs.excluded.words or {}) do
+      if word == excluded_word then
+        return
+      end
+    end
+
     vim.w.cursorword = matchadd(PLUG_NAME, [[\(\<\|\W\|\s\)\zs]] .. word .. [[\ze\(\s\|[^[:alnum:]_]\|$\)]], -1)
   end
 end
